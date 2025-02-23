@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Evaluation, Question, Answer
 from .serializers import EvaluationSerializer
-from QO.models import QuestionOpen
+from QO.models import OpenQuestion
 
 # Obtenir une évaluation spécifique avec ses questions et réponses
 @api_view(["GET"])
@@ -107,7 +107,7 @@ def create_evaluation(request):
                 )
         
         elif question_data["type"] == "open":
-            QuestionOpen.objects.create(
+            OpenQuestion.objects.create(
                 evaluation=evaluation,
                 content=question_data["content"],
                 time_limit=question_data["time_limit"],

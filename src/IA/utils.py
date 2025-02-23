@@ -2,8 +2,8 @@ import time
 
 
 from Accounts.models import *
-from assistant import DatabaseAssistant
-from helpers import get_model_structure
+from IA.assistant import DatabaseAssistant
+from IA.helpers import get_model_structure
 from django.apps import apps
 from django.conf import settings
 from django.db.models import Field
@@ -207,12 +207,81 @@ def generate_sql_query_with_gpt3(question, table_structure):
     sql_query = response.choices[0].text
     return sql_query
 
+json_req = """{
+    "evaluation": {
+        "title": "Évaluation sur Django",
+        "course_material": "Les bases de Django, modèles, vues et serializers.",
+        "code": "DJG2025",
+        "creation_date": "2025-02-23T10:00:00Z",
+        "teacher": {
+            "id": 1,
+            "username": "professeur_django"
+        },
+        "questions": [
+            {
+                "id": 1,
+                "type": "qcm",
+                "content": "Quelle commande permet de créer un projet Django ?",
+                "time": 30,
+                "points": 2,
+                "answers": [
+                    {
+                        "id": 1,
+                        "content": "django-admin startproject",
+                        "is_correct": true
+                    },
+                    {
+                        "id": 2,
+                        "content": "django-admin createproject",
+                        "is_correct": false
+                    },
+                    {
+                        "id": 3,
+                        "content": "django createproject",
+                        "is_correct": false
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "type": "qcm",
+                "content": "Quelle est la commande pour exécuter le serveur local Django ?",
+                "time": 45,
+                "points": 2,
+                "answers": [
+                    {
+                        "id": 4,
+                        "content": "python manage.py runserver",
+                        "is_correct": true
+                    },
+                    {
+                        "id": 5,
+                        "content": "django runserver",
+                        "is_correct": false
+                    },
+                    {
+                        "id": 6,
+                        "content": "python manage.py start",
+                        "is_correct": false
+                    }
+                ]
+            },
+            {
+                "id": 3,
+                "type": "open",
+                "content": "Expliquez le rôle des modèles dans Django et donnez un exemple d'utilisation.",
+                "time_limit": 120,
+                "points": 5
+            }
+        ]
+    }
+}"""
 def generate_qcm(prompt):
         client = OpenAI(api_key=api_key)
         full_prompt = (
-            f"Voici un prompt pour générer un QCM : {prompt}\n\n"
-            f"Créez un questionnaire à choix multiples (QCM) basé sur ce prompt. "
-            f"Assurez-vous d'inclure plusieurs questions avec des choix de réponses, et indiquez la réponse correcte pour chaque question."
+            f"Voici un prompt pour générer une Evaluation : {prompt}\n\n"
+            f"Créez une Evaluation a partir de ce prompt sous la format json suivants {json_req}"
+            f"Assurez-vous de repondre uniquement sous la format json"
         )
 
         response = client.completions.create(

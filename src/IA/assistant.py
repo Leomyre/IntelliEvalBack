@@ -1,7 +1,7 @@
 from openai import OpenAI
 from django.conf import settings
 
-from helpers import get_model_structure
+from IA.helpers import get_model_structure
 
 
 api_key = settings.OPENAI_API_KEY
