@@ -1,7 +1,10 @@
 from rest_framework.decorators import api_view, permission_classes
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
+from Accounts.models import User
 from .models import Evaluation, Question, Answer
 from .serializers import EvaluationSerializer
 from QO.models import OpenQuestion
@@ -63,15 +66,11 @@ def list_evaluations_by_teacher(request):
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+@csrf_exempt
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
 def create_evaluation(request):
-    """
-    Création d'une évaluation avec ses questions et réponses
-    """
-    if request.user.role != "teacher":
-        return Response({"error": "Seuls les enseignants peuvent créer une évaluation."}, status=status.HTTP_403_FORBIDDEN)
+
+   # Création d'une évaluation avec ses questions et réponses
 
     data = request.data.get("evaluation", {})
 
@@ -86,7 +85,7 @@ def create_evaluation(request):
         title=data["title"],
         course_material=data["course_material"],
         code=data["code"],
-        teacher=request.user,
+        teacher=User.objects.get(id=3),
     )
 
     # Ajouter les questions
@@ -110,8 +109,7 @@ def create_evaluation(request):
             OpenQuestion.objects.create(
                 evaluation=evaluation,
                 content=question_data["content"],
-                time_limit=question_data["time_limit"],
-                points=question_data["points"]
+                time_limit=question_data["time_limit"], 
             )
 
     return Response({"message": "Évaluation créée avec succès"}, status=status.HTTP_201_CREATED)

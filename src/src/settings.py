@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
+    'corsheaders',
     'Accounts',
     'QCM',
     'QO',
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'src.urls'
@@ -103,6 +105,8 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = 'Accounts.User'
+LOGIN_URL = '/accounts/login/'  # Mets une URL correcte
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -152,3 +156,17 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.1.24:3000",  # Si tu accèdes aussi à partir d'autres appareils sur le réseau local
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://192.168.1.24:3000",
+]

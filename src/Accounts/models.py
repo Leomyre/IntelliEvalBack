@@ -7,7 +7,7 @@ class User(AbstractUser):
         TEACHER = "teacher", "Enseignant"
 
     role = models.CharField(
-        max_length=20, choices=Role.choices, default=Role.STUDENT
+        max_length=20, choices=Role.choices, default=Role.TEACHER
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
