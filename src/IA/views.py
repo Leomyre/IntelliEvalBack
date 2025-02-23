@@ -17,6 +17,7 @@ def generate_text(request):
             prompt = data.get('prompt', '')
             if not prompt:
                 return JsonResponse({'error': 'No prompt provided'}, status=400)
+            print(prompt)
             text = generate_qcm(prompt)
             try:
                 
