@@ -27,3 +27,19 @@ def generate_text(request):
                 return JsonResponse({'error': 'Generated text is not valid JSON'}, status=500)
         except json.JSONDecodeError:
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
+@csrf_exempt
+@require_POST
+def evaluate_response(request):
+        try:
+            data = json.loads(request.body)
+            response = data.get('response', '')
+            if not response:
+                 return JsonResponse({'error': 'No response provided'}, status=400)
+                
+                # Placeholder for evaluation logic
+                # score = evaluate(response)
+            score = 0  # Replace with actual evaluation logic
+                
+            return JsonResponse({'score': score})
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)

@@ -281,7 +281,7 @@ def generate_qcm(prompt):
         full_prompt = (
             f"Voici un prompt pour générer une Evaluation : {prompt}\n\n"
             f"Créez une Evaluation a partir de ce prompt sous la format json suivants {json_req}"
-            f"Assurez-vous de repondre uniquement enjson"
+            f"Assurez-vous de repondre uniquement en json"
         )
 
         response = client.completions.create(
@@ -293,3 +293,20 @@ def generate_qcm(prompt):
 
         qcm = response.choices[0].text
         return qcm
+def evaluate_response(question, user_response):
+        client = OpenAI(api_key=api_key)
+        prompt = (
+            f"Question: {question}\n"
+            f"Réponse de l'utilisateur: {user_response}\n"
+            f"Évaluez cette réponse sur 20 en fonction de sa pertinence et de son exactitude."
+        )
+
+        response = client.completions.create(
+            model="gpt-3.5-turbo-instruct",
+            prompt=prompt,
+            max_tokens=50,
+            temperature=0.5,
+        )
+
+        evaluation = response.choices[0].text.strip()
+        return evaluation
