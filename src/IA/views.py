@@ -10,6 +10,7 @@ import json
 def display_text(request):
     text = generate_qcm("les voiture tesla")
     return JsonResponse({'text': text})
+
 @csrf_exempt
 @require_POST
 def generate_text(request):
