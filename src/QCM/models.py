@@ -18,7 +18,6 @@ class Evaluation(models.Model):
 
 class Question(models.Model):
     content = models.TextField()
-    correct_answer = models.TextField()
     time = models.IntegerField(help_text="Time in seconds")
     points = models.IntegerField(default=1)
     evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="questions")
@@ -28,14 +27,11 @@ class Question(models.Model):
 
 class Answer(models.Model):
     content = models.TextField()
-    score = models.FloatField(default=0)
-    comment = models.TextField(blank=True, null=True)
-    student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': User.Role.STUDENT})
-    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="answers")
     question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
+    is_correct = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Answer by {self.student.username} - {self.evaluation.title}"
+        return f"Answer - {self.question.evaluation.title}"
 
 
 class Submission(models.Model):
@@ -51,7 +47,7 @@ class Submission(models.Model):
         on_delete=models.CASCADE,
         related_name="submissions"
     )
-    date_soumission = models.DateTimeField(auto_now_add=True)
+    submission_date = models.DateTimeField(auto_now_add=True)
     score_total = models.FloatField(default=0)
 
     def __str__(self):
@@ -68,8 +64,11 @@ class StudentAnswer(models.Model):
         on_delete=models.CASCADE,
         related_name="student_answers"
     )
-    answer_text = models.TextField()
-    is_correct = models.BooleanField(null=True, blank=True)
+    answer = models.ForeignKey(
+        Answer,
+        on_delete=models.CASCADE,
+        related_name="student_answers")
+    is_correct = models.BooleanField(blank=True)
     score = models.FloatField(default=0)
 
     def __str__(self):
