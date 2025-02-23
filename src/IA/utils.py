@@ -281,7 +281,7 @@ def generate_qcm(prompt):
         full_prompt = (
             f"Voici un prompt pour générer une Evaluation : {prompt}\n\n"
             f"Créez une Evaluation a partir de ce prompt sous la format json suivants {json_req}"
-            f"Assurez-vous de repondre uniquement sous la format json"
+            f"Assurez-vous de repondre uniquement enjson"
         )
 
         response = client.completions.create(

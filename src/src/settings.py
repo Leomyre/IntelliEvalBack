@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-)%@78!@5f7yuu07_fxn*r&h$*i#k2fs%8all3k^%#s^t2^613b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv('GPT_API_KEY')
