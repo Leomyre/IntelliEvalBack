@@ -20,7 +20,7 @@ class Question(models.Model):
     content = models.TextField()
     time = models.IntegerField(help_text="Time in seconds")
     points = models.IntegerField(default=1)
-    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="questions")
+    evaluation = models.ForeignKey(Evaluation, on_delete=models.CASCADE, related_name="qcm_questions")
 
     def __str__(self):
         return f"Question {self.id} - {self.evaluation.title}"
