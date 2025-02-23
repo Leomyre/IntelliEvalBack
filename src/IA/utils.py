@@ -280,15 +280,16 @@ def generate_qcm(prompt):
         client = OpenAI(api_key=api_key)
         full_prompt = (
             f"Voici un prompt pour générer une Evaluation : {prompt}\n\n"
-            f"Créez une Evaluation a partir de ce prompt sous la format json suivants {json_req}"
-            f"Assurez-vous de repondre uniquement en json"
+            f"Créez une Evaluation à partir de ce prompt sous la forme JSON. "
+            f"Utilisez le format suivant comme exemple : {json_req}. "
+            f"Assurez-vous de répondre sous forme JSON."
         )
 
         response = client.completions.create(
             model="gpt-3.5-turbo-instruct",
             prompt=full_prompt,
-            max_tokens=500,
-            temperature=0.7,
+            max_tokens=1500,
+            temperature=1,
         )
 
         qcm = response.choices[0].text

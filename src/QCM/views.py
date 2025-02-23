@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -14,7 +14,7 @@ from QO.models import OpenQuestion
 #@permission_classes([IsAuthenticated])
 def get_evaluation(request, evaluation_code):
     try:
-        evaluation = Evaluation.objects.get(code=evaluation_code)
+        evaluation = Evaluation.objects.prefetch_related("questions").get(code=evaluation_code)
     except Evaluation.DoesNotExist:
         return Response({"error": "Évaluation non trouvée"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -22,7 +22,6 @@ def get_evaluation(request, evaluation_code):
     evaluation_data = {
         "title": evaluation.title,
         "course_material": evaluation.course_material,
-
         "creation_date": evaluation.creation_date,
         "teacher": {
             "id": evaluation.teacher.id,
@@ -31,30 +30,35 @@ def get_evaluation(request, evaluation_code):
         "questions": []
     }
 
+    # Récupérer toutes les questions liées à l'évaluation
     questions = evaluation.questions.all()
+    
     for question in questions:
         question_data = {
             "id": question.id,
-            "type": "qcm" if question.answers.exists() else "open",
             "content": question.content,
-            "time": question.time,
-            "points": question.points,
+            "time": question.time_limit,
+            "type": "open" if hasattr(question, "question_ouverte") else "qcm"
         }
 
-        if question.answers.exists():  # Si c'est un QCM
-            question_data["answers"] = [
-                {
-                    "id": answer.id,
-                    "content": answer.content,
-                    "is_correct": answer.is_correct
-                }
-                for answer in question.answers.all()
-            ]
+        # Vérifier si la question est une QuestionOuverte
+        if hasattr(question, "question_ouverte"):
+            question_data["max_characters"] = question.question_ouverte.max_caracteres
+        else:
+            # Si c'est un QCM, on ajoute les réponses (si elles existent)
+            if hasattr(question, "answers"):
+                question_data["answers"] = [
+                    {
+                        "id": answer.id,
+                        "content": answer.content,
+                        "is_correct": answer.is_correct
+                    }
+                    for answer in question.answers.all()
+                ]
         
         evaluation_data["questions"].append(question_data)
 
     return Response({"evaluation": evaluation_data}, status=status.HTTP_200_OK)
-
 
 # Obtenir toutes les évaluations créées par un professeur
 @api_view(["GET"])
@@ -66,10 +70,10 @@ def list_evaluations_by_teacher(request):
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-@csrf_exempt
-@api_view(["POST"])
-def create_evaluation(request):
 
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def create_evaluation(request):
    # Création d'une évaluation avec ses questions et réponses
 
     data = request.data.get("evaluation", {})
