@@ -31,7 +31,7 @@ class Answer(models.Model):
     is_correct = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Answer - {self.question.evaluation.title}"
+        return f"Answer - {self.question}"
 
 
 class Submission(models.Model):

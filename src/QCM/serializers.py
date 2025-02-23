@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Evaluation, Question, Reponse
+from .models import Evaluation, Question, Answer
 
 class EvaluationSerializer(serializers.ModelSerializer):
     professeur = serializers.StringRelatedField()  # Afficher le nom du professeur au lieu de l'ID
@@ -18,5 +18,5 @@ class ReponseSerializer(serializers.ModelSerializer):
     evaluation = serializers.StringRelatedField()  # Afficher le titre de l'évaluation
 
     class Meta:
-        model = Reponse
+        model = Answer
         fields = '__all__'

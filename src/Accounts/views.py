@@ -3,11 +3,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login, logout
-from .models import User, StudentProfile, TeacherProfile, AdminProfile
-from .serializers import UserSerializer, StudentProfileSerializer, TeacherProfileSerializer, AdminProfileSerializer
+from .models import User, StudentProfile, TeacherProfile
+from .serializers import UserSerializer, StudentProfileSerializer, TeacherProfileSerializer
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
-
+from rest_framework_simplejwt.tokens import RefreshToken
 # Inscription utilisateur
 @api_view(["POST"])
 @csrf_exempt
@@ -33,8 +32,12 @@ def register(request):
 @api_view(["POST"])
 @csrf_exempt
 def user_login(request):
+    if request.method == "GET":
+        return Response({"error": "Utilisez POST pour vous connecter"}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
     email = request.data.get("email")
     password = request.data.get("password")
+
     try:
         user = User.objects.get(email=email)
         if not user.check_password(password):
@@ -51,8 +54,9 @@ def user_login(request):
             "access": str(refresh.access_token),
             "refresh": str(refresh)
         }, status=status.HTTP_200_OK)
-    
+
     return Response({"error": "Identifiants invalides"}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 # Déconnexion utilisateur
 @api_view(["POST"])
