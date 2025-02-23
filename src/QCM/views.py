@@ -8,10 +8,10 @@ from QO.models import OpenQuestion
 
 # Obtenir une évaluation spécifique avec ses questions et réponses
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def get_evaluation(request, evaluation_id):
+#@permission_classes([IsAuthenticated])
+def get_evaluation(request, evaluation_code):
     try:
-        evaluation = Evaluation.objects.get(id=evaluation_id)
+        evaluation = Evaluation.objects.get(code=evaluation_code)
     except Evaluation.DoesNotExist:
         return Response({"error": "Évaluation non trouvée"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -19,7 +19,7 @@ def get_evaluation(request, evaluation_id):
     evaluation_data = {
         "title": evaluation.title,
         "course_material": evaluation.course_material,
-        "code": evaluation.code,
+
         "creation_date": evaluation.creation_date,
         "teacher": {
             "id": evaluation.teacher.id,
