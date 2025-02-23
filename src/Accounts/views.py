@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from .models import User, StudentProfile, TeacherProfile, AdminProfile
 from .serializers import UserSerializer, StudentProfileSerializer, TeacherProfileSerializer, AdminProfileSerializer
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 
 # Inscription utilisateur
 @api_view(["POST"])
@@ -23,24 +24,33 @@ def register(request):
             StudentProfile.objects.create(user=user)
         elif role == "teacher":
             TeacherProfile.objects.create(user=user)
-        elif role == "admin":
-            AdminProfile.objects.create(user=user)
 
         return Response({"message": "Inscription réussie"}, status=status.HTTP_201_CREATED)
-    
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Connexion utilisateur
 @api_view(["POST"])
 @csrf_exempt
 def user_login(request):
-    username = request.data.get("username")
+    email = request.data.get("email")
     password = request.data.get("password")
-    user = authenticate(username=username, password=password)
+    try:
+        user = User.objects.get(email=email)
+        if not user.check_password(password):
+            user = None
+    except User.DoesNotExist:
+        user = None
 
     if user:
         login(request, user)
-        return Response({"message": "Connexion réussie", "user": UserSerializer(user).data}, status=status.HTTP_200_OK)
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "message": "Connexion réussie",
+            "user": UserSerializer(user).data,
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
+        }, status=status.HTTP_200_OK)
     
     return Response({"error": "Identifiants invalides"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -63,9 +73,6 @@ def user_profile(request):
     elif user.role == "teacher":
         profile = user.teacher_profile
         serializer = TeacherProfileSerializer(profile)
-    elif user.role == "admin":
-        profile = user.admin_profile
-        serializer = AdminProfileSerializer(profile)
     else:
         return Response({"error": "Profil non trouvé"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -83,9 +90,6 @@ def update_profile(request):
     elif user.role == "teacher":
         profile = user.teacher_profile
         serializer_class = TeacherProfileSerializer
-    elif user.role == "admin":
-        profile = user.admin_profile
-        serializer_class = AdminProfileSerializer
     else:
         return Response({"error": "Profil non trouvé"}, status=status.HTTP_404_NOT_FOUND)
 
